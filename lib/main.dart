@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'time_classifier.dart';
 void main() {
   runApp(const KindHourApp());
 }
@@ -21,6 +21,9 @@ class KindHourScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final category = TimeClassifier.classify(DateTime.now());
+    print('Current time block: $category');
+    
     return Scaffold(
       body: Center(
         child: Padding(
