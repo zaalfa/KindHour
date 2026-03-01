@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'time_classifier.dart';
+import 'message_repository.dart';
+
 void main() {
   runApp(const KindHourApp());
 }
