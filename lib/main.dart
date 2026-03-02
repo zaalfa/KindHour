@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:workmanager/workmanager.dart';
 import 'time_classifier.dart';
 import 'message_repository.dart';
 import 'message_selector.dart';
-import 'package:home_widget/home_widget.dart';
 
-void main() {
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final message =
+        prefs.getString('saved_message') ?? 'You\'re doing great 🌸';
+    await HomeWidget.saveWidgetData<String>('kind_hour_message', message);
+    await HomeWidget.updateWidget(androidName: 'KindHourWidgetProvider');
+    return Future.value(true);
+  });
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Workmanager().initialize(callbackDispatcher);
+  await Workmanager().registerPeriodicTask(
+    'kindhour-widget-refresh',
+    'widgetRefresh',
+    frequency: const Duration(hours: 1),
+  );
   runApp(const KindHourApp());
 }
 
@@ -44,7 +65,6 @@ class _KindHourScreenState extends State<KindHourScreen> {
       timeBlock: timeBlock,
       messages: allMessages[timeBlock]!,
     );
-    // Push message to widget
     await HomeWidget.saveWidgetData<String>('kind_hour_message', message);
     await HomeWidget.updateWidget(androidName: 'KindHourWidgetProvider');
 
