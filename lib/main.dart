@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'time_classifier.dart';
 import 'message_repository.dart';
 import 'message_selector.dart';
+import 'package:home_widget/home_widget.dart';
 
 void main() {
   runApp(const KindHourApp());
@@ -43,6 +44,10 @@ class _KindHourScreenState extends State<KindHourScreen> {
       timeBlock: timeBlock,
       messages: allMessages[timeBlock]!,
     );
+    // Push message to widget
+    await HomeWidget.saveWidgetData<String>('kind_hour_message', message);
+    await HomeWidget.updateWidget(androidName: 'KindHourWidgetProvider');
+
     setState(() {
       _message = message;
       _loaded = true;
