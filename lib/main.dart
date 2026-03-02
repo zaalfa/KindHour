@@ -5,6 +5,7 @@ import 'package:workmanager/workmanager.dart';
 import 'time_classifier.dart';
 import 'message_repository.dart';
 import 'message_selector.dart';
+import 'theme_config.dart';
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
@@ -50,6 +51,7 @@ class KindHourScreen extends StatefulWidget {
 
 class _KindHourScreenState extends State<KindHourScreen> {
   String _message = '';
+  String _timeBlock = 'morning';
   bool _loaded = false;
 
   @override
@@ -70,24 +72,28 @@ class _KindHourScreenState extends State<KindHourScreen> {
 
     setState(() {
       _message = message;
+      _timeBlock = timeBlock;
       _loaded = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = ThemeConfig.getPastelBackground(_timeBlock);
+    final textColor = ThemeConfig.getTextColor(_timeBlock, false);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF0F5),
+      backgroundColor: bgColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: _loaded
               ? Text(
                   _message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                    color: textColor,
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
