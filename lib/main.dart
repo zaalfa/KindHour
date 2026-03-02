@@ -65,6 +65,10 @@ class _KindHourScreenState extends State<KindHourScreen> {
     final prefs = await SharedPreferences.getInstance();
     final savedTheme = prefs.getString('kind_hour_theme') ?? 'pastel';
 
+    // DEBUG - hapus setelah confirmed working
+    final debugPrefs = await SharedPreferences.getInstance();
+    print('DEBUG all keys: ${debugPrefs.getKeys()}');
+
     final timeBlock = TimeClassifier.classify(DateTime.now());
     final allMessages = await MessageRepository.loadMessages();
     final message = await MessageSelector.getMessage(
