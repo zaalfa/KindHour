@@ -1,8 +1,10 @@
 package com.example.kindhour
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.widget.RemoteViews
 
@@ -26,11 +28,26 @@ class KindHourWidgetProvider : AppWidgetProvider() {
             0xFF333333.toInt()
         }
 
+        // Intent untuk membuka app saat widget diklik
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.kind_hour_widget)
             views.setTextViewText(R.id.kind_hour_message, message)
             views.setTextColor(R.id.kind_hour_message, textColor)
             views.setInt(R.id.widget_root, "setBackgroundResource", getBackgroundDrawable(theme, timeBlock))
+            
+            // Set click listener ke seluruh widget
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+            
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
