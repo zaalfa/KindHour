@@ -52,6 +52,7 @@ class KindHourScreen extends StatefulWidget {
 class _KindHourScreenState extends State<KindHourScreen> {
   String _message = '';
   String _timeBlock = 'morning';
+  final bool _isMonochrome = true;
   bool _loaded = false;
 
   @override
@@ -79,8 +80,10 @@ class _KindHourScreenState extends State<KindHourScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = ThemeConfig.getPastelBackground(_timeBlock);
-    final textColor = ThemeConfig.getTextColor(_timeBlock, false);
+    final bgColor = _isMonochrome
+        ? ThemeConfig.getMonochromeBackground(_timeBlock)
+        : ThemeConfig.getPastelBackground(_timeBlock);
+    final textColor = ThemeConfig.getTextColor(_timeBlock, _isMonochrome);
 
     return Scaffold(
       backgroundColor: bgColor,
