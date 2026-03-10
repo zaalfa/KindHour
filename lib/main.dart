@@ -10,22 +10,39 @@ import 'theme_config.dart';
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    // Hitung time block saat ini
+    final timeBlock = TimeClassifier.classify(DateTime.now());
+
+    // Load semua messages
+    final allMessages = await MessageRepository.loadMessages();
+
+    // Pilih message sesuai time block (stable selection)
+    final message = await MessageSelector.getMessage(
+      timeBlock: timeBlock,
+      messages: allMessages[timeBlock]!,
+    );
+
+    // Ambil theme yang tersimpan
     final prefs = await SharedPreferences.getInstance();
-    final message =
-        prefs.getString('saved_message') ?? 'You\'re doing great 🌸';
+    final theme = prefs.getString('kind_hour_theme') ?? 'pastel';
+
+    // Push semua data ke widget
     await HomeWidget.saveWidgetData<String>('kind_hour_message', message);
+    await HomeWidget.saveWidgetData<String>('kind_hour_theme', theme);
+    await HomeWidget.saveWidgetData<String>('saved_time_block', timeBlock);
     await HomeWidget.updateWidget(androidName: 'KindHourWidgetProvider');
+
     return Future.value(true);
   });
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Workmanager().initialize(callbackDispatcher);
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
   await Workmanager().registerPeriodicTask(
     'kindhour-widget-refresh',
     'widgetRefresh',
-    frequency: const Duration(hours: 1),
+    frequency: const Duration(minutes: 15),
   );
   runApp(const KindHourApp());
 }
@@ -65,10 +82,6 @@ class _KindHourScreenState extends State<KindHourScreen> {
     final prefs = await SharedPreferences.getInstance();
     final savedTheme = prefs.getString('kind_hour_theme') ?? 'pastel';
 
-    // DEBUG - hapus setelah confirmed working
-    final debugPrefs = await SharedPreferences.getInstance();
-    print('DEBUG all keys: ${debugPrefs.getKeys()}');
-
     final timeBlock = TimeClassifier.classify(DateTime.now());
     final allMessages = await MessageRepository.loadMessages();
     final message = await MessageSelector.getMessage(
@@ -76,7 +89,7 @@ class _KindHourScreenState extends State<KindHourScreen> {
       messages: allMessages[timeBlock]!,
     );
 
-    // Push to widget
+    // Push semua data ke widget
     await HomeWidget.saveWidgetData<String>('kind_hour_message', message);
     await HomeWidget.saveWidgetData<String>('kind_hour_theme', savedTheme);
     await HomeWidget.saveWidgetData<String>('saved_time_block', timeBlock);
@@ -94,11 +107,9 @@ class _KindHourScreenState extends State<KindHourScreen> {
     final newIsMonochrome = !_isMonochrome;
     final newTheme = newIsMonochrome ? 'monochrome' : 'pastel';
 
-    // Save theme preference
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('kind_hour_theme', newTheme);
 
-    // Push new theme to widget
     await HomeWidget.saveWidgetData<String>('kind_hour_theme', newTheme);
     await HomeWidget.updateWidget(androidName: 'KindHourWidgetProvider');
 
